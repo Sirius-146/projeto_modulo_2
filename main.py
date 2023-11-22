@@ -1,3 +1,6 @@
+import requests
+import json
+
 def search_name(search_method):
   search = ['livro','coleção','autor']
   name = input(f'Insira o nome do {search[search_method-1]}: ').lower()
@@ -21,8 +24,7 @@ def search_method(answer):
   return (name,mode)
 
 def get_results(name,tipo):
-  import requests
-  url = f'https://www.googleapis.com/books/v1/volumes?q={tipo}{name}&printType=books&langRestrict=pt&maxResults=5'
+  url = f'https://www.googleapis.com/books/v1/volumes?q={tipo}{name}&printType=books&langRestrict=pt&maxResults=1'
   response = requests.get(url)
   data = response.json()
   return data
@@ -68,7 +70,11 @@ def create_dict(books):
     books_found_list = dict(zip(basic_book_info, book_info))
   return books_found_list
 
-def show_results(book):
+def show_favorites(json_dicio):
+  books = [book['title'].lower() for book in json_dicio['book']]
+  return books
+
+def show_book_info(book):
   try:
     print(f'{book["title"]} \nAutor: {book["author"]}\t Editora: {book["publisher"]}\t\t Páginas: {book["pages"]}\nDescrição: \n{book["description"]}\n')
   except TypeError:
@@ -76,15 +82,12 @@ def show_results(book):
 
 def load_resources(search):
   name, mode = search_method(search)
-  retorno = get_results(name,mode)
-  string_json = separate_book_info(retorno)
-  livro = colect_errors(string_json)
-  dicio = create_dict(livro)
-  show_results(dicio)
+  string_json = separate_book_info(get_results(name,mode))
+  dicio = create_dict(colect_errors(string_json))
+  show_book_info(dicio)
   return search,dicio
 
 def add_favorite(book):
-  import json
   try:
     with open('favorites.json', 'r') as arquivo:
       favorites = json.load(arquivo)
@@ -94,19 +97,31 @@ def add_favorite(book):
   with open('favorites.json', 'w') as arquivo:
     json.dump(favorites, arquivo, indent=2)
 
+def remove_favorite(fav_name):
+    try:
+        with open('favorites.json', 'r') as arquivo:
+            favorites = json.load(arquivo)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return 'Não há livros na lista'
+    
+    favorites['book'] = [book for book in favorites['book'] if book['title'].lower() != fav_name]
+
+    with open('favorites.json', 'w') as arquivo:
+        json.dump(favorites, arquivo, indent=2)
+
 def see_favorites():
-  import json
   try:
     with open('favorites.json', 'r') as arquivo:
-      conteudo = arquivo.read()
-      conteudo = json.loads(conteudo)
+      conteudo = json.load(arquivo)
   except FileNotFoundError:
     conteudo = 'Sua lista está vazia'
   return conteudo
 
-def display_favs(json_dicio):
-  for book in json_dicio['book']:
-    show_results(book)
+def find_favorite(fav_list, fav_name):
+  if fav_name.lower() in fav_list:
+    remove_favorite(fav_name)
+  else:
+    print('Esse livro não está em sua lista de favoritos')
 
 def menu():
     menu = '''
@@ -130,13 +145,58 @@ def sub_favs_menu():
   => '''
   return input(menu)
 
+def favs_menu():
+  menu = '''
+  ---------- Menu ----------
+  [1] - Remover favorito
+  [2] - Detalhes sobre o livro
+  [3] - Informações adicionais
+  [0] - Retornar
+  --------------------
+  => '''
+  return input(menu)
+
+def search_book(fav_name):
+  book = None
+  for livro in see_favorites()['book']:
+    if fav_name == livro['title'].lower():
+      book = livro
+  show_book_info(book)
+
+def display_favs_menu():
+  try:
+    for livro in show_favorites(see_favorites()):
+          print(livro)
+    while True:
+      opcao = favs_menu()
+      try:
+        opcao = int(opcao)
+        if opcao == 1:
+          fav_name = input('Digite o nome do livro: ').lower()
+          remove_favorite(fav_name)
+          break
+        elif opcao == 2:
+          fav_name = input('Digite o nome do livro: ').lower()
+          search_book(fav_name)
+          break
+        elif opcao == 0:
+          break
+        else:
+          print('Essa não é uma opção válida')
+          continue
+      except ValueError:
+        print('É necessário inserir um número')
+        continue
+  except TypeError:
+    print(see_favorites())
+
 def display_menu(previous_option,book):
   while True:
     opcao = sub_favs_menu()
     try:
       opcao = int(opcao)
       if opcao == 1:
-        search, book = load_resources(previous_option)
+        _, book = load_resources(previous_option)
       elif opcao == 2:
         add_favorite(book)
         break
@@ -164,8 +224,7 @@ def main():
         search, livro = load_resources(opcao)
         display_menu(search,livro)
       elif opcao == 4:
-        favs_atuais = see_favorites()
-        display_favs(favs_atuais)
+        display_favs_menu()
       elif opcao == 0:
         print('Encerrando...')
         break
