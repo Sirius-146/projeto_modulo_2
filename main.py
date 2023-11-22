@@ -1,32 +1,3 @@
-import requests
-
-
-def search_method():
-  print('''O que você está procurando?
-    1 - Um título específico
-    2 - Uma coleção
-    3 - Um autor''')
-  search = None
-  while True:
-    answer = input('Digite aqui: ')
-    try:
-      answer = int(answer)
-      if answer == 1:
-        search = answer
-        break
-      elif answer == 2:
-        search = answer
-        break
-      elif answer == 3:
-        search = answer
-        break
-      else:
-        print('Essa não é uma opção válida')
-        continue
-    except ValueError:
-      print('É necessário inserir um número')
-  return search
-
 def search_name(search_method):
   search = ['livro','coleção','autor']
   name = input(f'Insira o nome do {search[search_method-1]}: ').lower()
@@ -43,6 +14,11 @@ def search_mode(search_method):
   else:
     search_method = ''
   return search_method
+
+def search_method(answer):
+  name = search_name(answer)
+  mode = search_mode(answer)
+  return (name,mode)
 
 def get_results(name,tipo):
   import requests
@@ -62,9 +38,9 @@ def colect_errors(received_data):
   books = []
   for book in range(len(received_data)):
     try:
-      title = (received_data[book]["title"]).title()
+      name = (received_data[book]["title"]).title()
     except KeyError:
-      title = None
+      name = None
     try:
       authors = received_data[book]["authors"][0]
     except KeyError:
@@ -82,18 +58,122 @@ def colect_errors(received_data):
       description = '.\n'.join(description.split('. '))
     except KeyError:
       description = None
-    books.append([title, authors, publisher, pages, description])
+    books.append([name, authors, publisher, pages, description])
   return books
 
-def show_results(book):
-  for i in range(len(book)):
-    print(f'{book[i][0]} \nAutor: {book[i][1]}\t Editora: {book[i][2]}\t Páginas: {book[i][3]}\nDescrição: \n{book[i][4]}')
+def create_dict(books):
+  for book in books:
+    basic_book_info = ['title', 'author','publisher','pages','description']
+    book_info = [book[0], book[1], book[2], book[3], book[4]]
+    books_found_list = dict(zip(basic_book_info, book_info))
+  return books_found_list
 
+def show_results(book):
+  try:
+    print(f'{book["title"]} \nAutor: {book["author"]}\t Editora: {book["publisher"]}\t\t Páginas: {book["pages"]}\nDescrição: \n{book["description"]}\n')
+  except TypeError:
+    print('Sua lista está vazia')
+
+def load_resources(search):
+  name, mode = search_method(search)
+  retorno = get_results(name,mode)
+  string_json = separate_book_info(retorno)
+  livro = colect_errors(string_json)
+  dicio = create_dict(livro)
+  show_results(dicio)
+  return search,dicio
+
+def add_favorite(book):
+  import json
+  try:
+    with open('favorites.json', 'r') as arquivo:
+      favorites = json.load(arquivo)
+  except (FileNotFoundError, json.JSONDecodeError):
+    favorites = {'book': []}
+  favorites['book'].append(book)
+  with open('favorites.json', 'w') as arquivo:
+    json.dump(favorites, arquivo, indent=2)
+
+def see_favorites():
+  import json
+  try:
+    with open('favorites.json', 'r') as arquivo:
+      conteudo = arquivo.read()
+      conteudo = json.loads(conteudo)
+  except FileNotFoundError:
+    conteudo = 'Sua lista está vazia'
+  return conteudo
+
+def display_favs(json_dicio):
+  for book in json_dicio['book']:
+    show_results(book)
+
+def menu():
+    menu = '''
+  ---------- Menu ----------
+  [1] - Pesquisar Livro
+  [2] - Pesquisar Coleção
+  [3] - Pesquisar Autor
+  [4] - Visualizar Favoritos
+  [0] - Finalizar
+  --------------------
+  => '''
+    return input(menu)
+
+def sub_favs_menu():
+  menu = '''
+  ---------- Menu ----------
+  [1] - Pesquisar Novamente
+  [2] - Adicionar aos favoritos
+  [0] - Retornar
+  --------------------
+  => '''
+  return input(menu)
+
+def display_menu(previous_option,book):
+  while True:
+    opcao = sub_favs_menu()
+    try:
+      opcao = int(opcao)
+      if opcao == 1:
+        search, book = load_resources(previous_option)
+      elif opcao == 2:
+        add_favorite(book)
+        break
+      elif opcao == 0:
+        break
+      else:
+        print('Essa não é uma opção válida')
+        continue
+    except ValueError:
+      print('É necessário inserir um número')
+      continue
 
 def main():
-  start = search_method()
-  name = search_name(start)
-  mode = search_mode(start)
-  data = get_results(name,mode)
-  print(data)
+  while True:
+    opcao = menu()
+    try:
+      opcao = int(opcao)
+      if opcao == 1:
+        search, livro = load_resources(opcao)
+        display_menu(search,livro)
+      elif opcao == 2:
+        search, livro = load_resources(opcao)
+        display_menu(search,livro)
+      elif opcao == 3:
+        search, livro = load_resources(opcao)
+        display_menu(search,livro)
+      elif opcao == 4:
+        favs_atuais = see_favorites()
+        display_favs(favs_atuais)
+      elif opcao == 0:
+        print('Encerrando...')
+        break
+      else:
+        print('Essa não é uma opção válida')
+        continue
+    except ValueError:
+      print('É necessário inserir um número')
+      continue
+
 main()
