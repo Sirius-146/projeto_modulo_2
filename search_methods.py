@@ -39,7 +39,8 @@ def colect_errors(received_data):
   books = []
   for book in range(len(received_data)):
     try:
-      name = (received_data[book]["title"]).title()
+      name = (received_data[book]["title"]).title().strip()
+      name = name.split('(')[0]
     except KeyError:
       name = None
     try:
@@ -55,16 +56,20 @@ def colect_errors(received_data):
     except KeyError:
       pages = None
     try:
+      category = received_data[book]["categories"][0]
+    except KeyError:
+      category = None
+    try:
       description = received_data[book]["description"]
       description = '.\n'.join(description.split('. '))
     except KeyError:
       description = None
-    books.append([name, authors, publisher, pages, description])
+    books.append([name, authors, publisher, pages, category, description])
   return books
 
 def create_dict(books):
   for book in books:
-    basic_book_info = ['title', 'author','publisher','pages','description']
-    book_info = [book[0], book[1], book[2], book[3], book[4]]
+    basic_book_info = ['title', 'author','publisher','pages','categories','description']
+    book_info = [book[0], book[1], book[2], book[3], book[4], book[5]]
     books_found_list = {key_name:info_book for key_name,info_book in zip(basic_book_info,book_info)}
   return books_found_list

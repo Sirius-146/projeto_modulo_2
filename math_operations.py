@@ -21,3 +21,15 @@ def std_dev(pages,median):
   sum_values = sum(test)/(len(pages))
   standard_deviation = sum_values**.5
   return standard_deviation
+
+def list_categories(dicionary):
+    def reduce(counter, key):
+        if dicionary[key] in counter:
+            counter[dicionary[key]]+=1
+        else:
+            counter[dicionary[key]] = 1
+        return counter
+    return reduce
+
+def reduce_categories(grouped_categories,dicionary):
+   return reduce(grouped_categories,dicionary,{})

@@ -10,7 +10,8 @@ def show_favorites(json_dicio, key_searched='title'):
 
 def show_book_info(book):
   try:
-    print(f'{book["title"]} \nAutor: {book["author"]:^20}\t Editora: {book["publisher"]}\t\t Páginas: {book["pages"]}\nDescrição: \n{book["description"]}\n')
+    print(f'{book["title"]} \nAutor: {book["author"]:^20}\t Editora: {book["publisher"]}\t\t Páginas: {book["pages"]}\t Categoria: {book["categories"]}')
+    print(f'Descrição: \n{book["description"]}\n')
   except TypeError:
     print('Sua lista está vazia')
 
@@ -38,26 +39,33 @@ def search_book(fav_name):
 def extra_info():
   name = show_favorites(see_favorites())
   pages = show_favorites(see_favorites(), key_searched='pages')
+  categories = show_favorites(see_favorites(), key_searched='categories')
+  dicionary = {name:category for name, category in zip(name,categories)}
   max_min_results = mto.return_max_min(name,pages)
   total_pages, median = mto.calc_median_total_pages(pages)
   st_dev = mto.std_dev(pages, median)
+  grouped_categories = mto.list_categories(dicionary)
+  books_category = mto.reduce_categories(grouped_categories,dicionary)
   print(f'Maior livro: {max_min_results[0][0]:^20}\t Páginas: {max_min_results[0][1]} \nMenor livro: {max_min_results[1][0]:^20}\t Páginas: {max_min_results[1][1]}\n')
-  print(f'Total de páginas: {total_pages}\t Média de páginas: {int(median)}\t Desvio Padrão: {st_dev:.2f}')
+  print('Livros por categoria:')
+  for category in books_category:
+    print(f'{category} - {books_category[category]}')
+  print(f'\nTotal de páginas: {total_pages}\t Média de páginas: {int(median)}\t Desvio Padrão: {st_dev:.2f}')
 
 def display_favs_menu():
   try:
     for book_name in show_favorites(see_favorites()):
-          print(book_name)
+          print(f'{book_name:^30}')
     while True:
       option = menus.favs_menu()
       try:
         option = int(option)
         if option == 1:
-          fav_name = input('Digite o nome do livro: ').lower()
+          fav_name = input('Digite o nome do livro: ').lower().strip()
           jed.remove_favorite(fav_name)
           break
         elif option == 2:
-          fav_name = input('Digite o nome do livro: ').lower()
+          fav_name = input('Digite o nome do livro: ').lower().strip()
           search_book(fav_name)
           break
         elif option == 3:
