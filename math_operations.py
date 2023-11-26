@@ -11,13 +11,13 @@ def return_max_min(name,pages):
       minimo = (name[i], pages[i])
   return [maximo,minimo]
 
-def calc_median_total_pages(pages):
+def calc_media_total_pages(pages):
   total_pages = reduce(lambda x,y: x+y, pages, 0)
-  median = (total_pages/len(pages))
-  return total_pages, median
+  media = (total_pages/len(pages))
+  return total_pages, media
 
-def std_dev(pages,median):
-  test = [(x-median)**2 if x>median else (median-x)**2 for x in pages]
+def std_dev(pages,media):
+  test = [(x-media)**2 if x>media else (media-x)**2 for x in pages]
   sum_values = sum(test)/(len(pages))
   standard_deviation = sum_values**.5
   return standard_deviation
