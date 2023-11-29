@@ -54,8 +54,8 @@ def extra_info():
 
 def display_favs_menu():
   try:
-    for livro in show_favorites(see_favorites()):
-          print(livro)
+    for book_name in show_favorites(see_favorites()):
+          print(f'{book_name:^30}')
     while True:
       option = menus.favs_menu()
       try:
