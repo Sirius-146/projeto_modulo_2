@@ -49,12 +49,11 @@ def separate_book_info(data) ->list:
     information.append(volumeInfo)
   return information
 
-def colect_errors(received_data) ->list:
-  """Generate a list with the information provided from the API.\n
-  It catalogs the json keys, adding the values that will be displayed for the user into a list.\n
+def colect_errors(received_data) ->dict:
+  """Create a dictionary for any book using the json structure from this program.\n
   Returns:
-      [name, author, publisher, pages, category, description]"""
-  books = []
+      { title : name, author : author, publisher : publisher,
+      pages : pages, categories : category, description : description }"""
   for book in range(len(received_data)):
     try:
       name = (received_data[book]["title"]).title().strip()
@@ -62,9 +61,9 @@ def colect_errors(received_data) ->list:
     except KeyError:
       name = None
     try:
-      authors = received_data[book]["authors"][0]
+      author = received_data[book]["authors"][0]
     except KeyError:
-      authors = None
+      author = None
     try:
       publisher = received_data[book]["publisher"]
     except KeyError:
@@ -82,16 +81,5 @@ def colect_errors(received_data) ->list:
       description = '.\n'.join(description.split('. '))
     except KeyError:
       description = None
-    books.append([name, authors, publisher, pages, category, description])
+    books = {'title': name,'author': author,'publisher': publisher,'pages':pages,'categories':category,'description':description}
   return books
-
-def create_dict(books:list) ->dict:
-  """Create a dictionary for any book using the json structure from this program.\n
-  Returns:
-      { title : name, author : author, publisher : publisher,
-      pages : pages, categories : category, description : description }"""
-  for book in books:
-    basic_book_info = ['title', 'author','publisher','pages','categories','description']
-    book_info = [book[0], book[1], book[2], book[3], book[4], book[5]]
-    books_found_list = dict(zip(basic_book_info,book_info))
-  return books_found_list
