@@ -1,10 +1,14 @@
 # Interface de consulta e armazenamento de livros
 #### Projeto desenvolvido para o módulo 2 do curso Vem Ser Tech - Dados.
 
+##### Manutenção e evolução por _Ruan Faria_
+
 ## Objetivos:
 * Obter dados em uma API;
 * Adicionar e remover dados em um arquivo JSON;
 * Obter dados estatísticos a partir dos dados armazenados,
+
+_Para visualizar a versão referente ao trabalho original, visite o sexto passo - sixth step._
 
 ## Requisitos:
 * Ler uma lista de objetos de um JSON;
@@ -22,12 +26,12 @@
 
 ### Usabilidade:
 As opções disponíveis para o usuário são exibidas em menus, de modo que o usuário sempre tenha o controle sobre a ação que deseja tomar.
-![Menu Inicial](menu.png)<br>
+![Menu Inicial](img/menu.png)<br>
 Após realizar sua pesquisa, o usuário é perguntado se deseja adicionar o livro aos favoritos ou pesquisar novamente. Na primeira opção, o livro é salvo e o usuário retorna ao menu principal, já na segunda o usuário retorna ao campo de pesquisa com o mesmo parâmetro que o definido anteriormente.
 
 ### Requisições:
 As requisições são feitas a API de acordo com os parâmetros informados pelo usuário, permitindo uma busca mais específica.
-O retorno da API é tratado - tanto em relação aos dados que serão utilizados quanto ao seu valor (por padrão, campos vazios são substituídos por None) - e por fim transformado em um novo dicionário com as informações pertinentes ao projeto. Por fim, os dados são exibidos ao usuário.<br>
+O retorno da API é tratado - tanto em relação aos dados que serão utilizados quanto ao seu valor (por padrão, campos vazios são substituídos por None) - os dados são então transformados em um novo dicionário e posteriormente adicionados à classe Book. Por fim, os dados são exibidos ao usuário.<br>
 *Importante:* Por questões de desempenho e usabilidade no terminal, somente um livro é buscado por vez.
 
 ### Persistência de dados:
@@ -50,3 +54,9 @@ Localizado no item **3** (Informações adicionais) do sub-menu *Visualizar Favo
 - Quantidade total de páginas;
 - Média de páginas;
 - Desvio padrão de páginas por livro.
+
+### Atualizações da última versão:
+Na versão mais recente, o código foi refatorado para Orientação à Objetos - OOP.<br>
+Essa é uma versão inicial que deverá sofrer melhorias e atualizações em breve. No entanto, apresenta as mesmas funcionalidades que a versão anterior de forma satisfatória.
+
+**_Project version 2.0_**
